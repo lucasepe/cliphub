@@ -1,0 +1,13 @@
+[
+  {
+    "file": "intro.mp4",
+    "fade": 0.3
+  },
+  {
+    "file": "curve_slow.mp4",
+    "fade": 0.25
+  },
+  {
+    "file": "outro.mp4"
+  }
+]

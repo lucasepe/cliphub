@@ -1,0 +1,65 @@
+# macOS / editor noise
+.DS_Store
+._*
+*.swp
+*.swo
+*~
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Go build/test artifacts
+bin/
+dist/
+build/
+coverage.out
+*.test
+*.prof
+*.coverprofile
+
+# Local Go caches used by this repository
+.gocache/
+.gomodcache/
+
+# Locally built command binaries
+/cliphub
+
+# Runtime/download caches
+.emoji-cache/
+_docs/
+
+# Whisper models are large and should be downloaded locally
+models/
+*.bin
+*.gguf
+
+# Generated media and temporary audio
+*.mp4
+*.MP4
+*.mov
+*.MOV
+*.m4v
+*.M4V
+*.avi
+*.AVI
+*.mkv
+*.MKV
+*.webm
+*.WEBM
+*.wav
+*.WAV
+*.mp3
+*.MP3
+*.aac
+*.AAC
+
+# Generated overlay/clip sidecars are usually local workflow output.
+# Keep committed examples explicit with git add -f when needed.
+*_overlays.json
+*_slices.json
+
+# Keep source and scripts trackable.
+!scripts/
+!scripts/**
