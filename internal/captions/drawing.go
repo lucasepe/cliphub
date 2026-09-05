@@ -41,10 +41,12 @@ func drawTextBlock(ctx *gg.Context, lines []TextLine, centerX, topY, lineHeight,
 		x := centerX - line.Width/2
 		baseline := topY + float64(i)*lineHeight
 		previousWasEmoji := false
+
 		for _, part := range line.Parts {
 			if previousWasEmoji && part.Emoji != nil {
 				x += emojiGap(fontSize)
 			}
+
 			if part.Emoji != nil {
 				drawEmoji(ctx, part.Emoji, x, baseline-fontSize*0.82, fontSize)
 			} else {
@@ -53,6 +55,7 @@ func drawTextBlock(ctx *gg.Context, lines []TextLine, centerX, topY, lineHeight,
 				ctx.SetColor(color.White)
 				ctx.DrawString(part.Value, x, baseline)
 			}
+
 			x += part.Width
 			previousWasEmoji = part.Emoji != nil
 		}

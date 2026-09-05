@@ -45,6 +45,7 @@ func loadEmojiImage(cluster, cacheDir string) (image.Image, error) {
 	} else if err != nil {
 		return nil, fmt.Errorf("read emoji cache: %w", err)
 	}
+
 	return decodeEmoji(data, key)
 }
 
@@ -54,6 +55,7 @@ func decodeEmoji(data []byte, label string) (image.Image, error) {
 	if err != nil {
 		return nil, fmt.Errorf("decode emoji asset %q: %w", label, err)
 	}
+
 	return img, nil
 }
 
@@ -66,6 +68,7 @@ func emojiFilename(cluster string) string {
 		}
 		codepoints = append(codepoints, fmt.Sprintf("%x", r))
 	}
+
 	return strings.Join(codepoints, "-") + ".png"
 }
 
@@ -82,15 +85,18 @@ func downloadEmoji(cluster string) ([]byte, error) {
 		return nil, fmt.Errorf("download emoji %q: %w", cluster, err)
 	}
 	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusOK {
 		if resp.StatusCode == http.StatusNotFound {
 			return nil, fmt.Errorf("%w: %q", errEmojiAssetNotFound, cluster)
 		}
 		return nil, fmt.Errorf("download emoji %q: %s", cluster, resp.Status)
 	}
+
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("read emoji %q: %w", cluster, err)
 	}
+
 	return data, nil
 }

@@ -11,7 +11,9 @@ import (
 	"github.com/lucasepe/cliphub/internal/captions"
 	"github.com/lucasepe/cliphub/internal/fit"
 	"github.com/lucasepe/cliphub/internal/join"
+	"github.com/lucasepe/cliphub/internal/preview"
 	"github.com/lucasepe/cliphub/internal/reverse"
+	"github.com/lucasepe/cliphub/internal/script"
 	"github.com/lucasepe/cliphub/internal/slice"
 	"github.com/lucasepe/cliphub/internal/slow"
 	"github.com/lucasepe/cliphub/internal/soundtrack"
@@ -46,7 +48,9 @@ func main() {
 
 	tool.Register(captions.CaptionsTask(appName), "")
 	tool.Register(transcribe.TranscribeTask(appName), "")
+	tool.Register(script.Task(appName), "")
 	tool.Register(fit.Task(appName), "")
+	tool.Register(preview.Task(appName), "")
 	tool.Register(slice.SliceTask(appName), "")
 	tool.Register(reverse.ReverseTask(appName), "")
 	tool.Register(slow.SlowTask(appName), "")

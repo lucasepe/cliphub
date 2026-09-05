@@ -10,7 +10,10 @@ import (
 
 // CaptionsTask returns the caption rendering command for the unified ClipHub CLI.
 func CaptionsTask(appName string) cl.Task {
-	return &captionsTask{ctx: context.Background(), appName: appName}
+	return &captionsTask{
+		ctx:     context.Background(),
+		appName: appName,
+	}
 }
 
 var _ cl.Task = (*captionsTask)(nil)

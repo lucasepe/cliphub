@@ -22,11 +22,14 @@ func validateConfig(cfg Config) error {
 	if cfg.Input == "" {
 		return errors.New("missing required -in video path")
 	}
+
 	if cfg.Width <= 0 || cfg.Height <= 0 {
 		return errors.New("-width and -height must be positive")
 	}
+
 	if isKnownColorEmojiFont(cfg.FontPath) {
 		return fmt.Errorf("%q is a color emoji font, but the text renderer cannot draw color emoji glyphs; use a normal text font for now", cfg.FontPath)
 	}
+
 	return nil
 }

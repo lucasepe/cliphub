@@ -98,12 +98,15 @@ func printRenderCommands(cfg Config, jobs []RenderJob) {
 		}
 		output := cfg.Output
 		if end < len(jobs) {
-			output = fmt.Sprintf("<cliphub-pass-%03d.mp4>", start/maxOverlayInputs+1)
+			output = fmt.Sprintf(
+				"<cliphub-pass-%03d.mp4>",
+				start/maxOverlayInputs+1)
 		}
 		passCfg := cfg
 		passCfg.Input = input
 		passCfg.Output = output
-		shared.PrintCommand("ffmpeg", renderFFmpegArgs(passCfg, jobs[start:end]))
+		shared.PrintCommand("ffmpeg",
+			renderFFmpegArgs(passCfg, jobs[start:end]))
 		input = output
 	}
 }

@@ -19,12 +19,15 @@ func validateConfig(cfg Config) error {
 	if cfg.Input == "" {
 		return errors.New("missing required -in video path")
 	}
+
 	if cfg.Output == "" {
 		return errors.New("missing required -out video path")
 	}
+
 	if cfg.Width <= 0 || cfg.Height <= 0 {
 		return errors.New("-width and -height must be positive")
 	}
+
 	return nil
 }
 
@@ -35,12 +38,14 @@ func fitVideo(cfg Config) error {
 		shared.PrintCommand("ffmpeg", args)
 		return nil
 	}
+
 	cmd := exec.Command("ffmpeg", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("fit %q: %w", cfg.Output, err)
 	}
+
 	return nil
 }
 

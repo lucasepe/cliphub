@@ -27,11 +27,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-
-      - name: Install UPX
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y upx-ucl || sudo apt-get install -y upx
+          cache: true
 
       - name: Determine version and commit
         id: vars
@@ -64,12 +60,6 @@ jobs:
             CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH \
               go build -trimpath -ldflags="-s -w -X main.build=${{ steps.vars.outputs.COMMIT }}" \
               -o "$OUTPUT_FILE"
-
-            # Strip binary (best-effort, not arch-specific)
-            strip "$OUTPUT_FILE" || true
-
-            # Compress with UPX if available
-            upx --best --lzma --brute "$OUTPUT_FILE" || true
 
             # Add extra files
             FILES_TO_ARCHIVE=("$OUTPUT_FILE")

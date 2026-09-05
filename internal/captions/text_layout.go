@@ -44,7 +44,9 @@ func layoutLines(ctx *gg.Context, cfg Config, overlay Overlay) ([]TextLine, erro
 		}
 		tooWide := current.Width+part.Width > maxWidth
 		tooManyChars := current.Chars+part.Chars > maxChars
-		if (tooWide || tooManyChars) && len(current.Parts) > 0 && !isSpace(cluster) {
+		if (tooWide || tooManyChars) &&
+			len(current.Parts) > 0 &&
+			!isSpace(cluster) {
 			lines = append(lines, trimLine(current, fontSize))
 			current = TextLine{}
 		}

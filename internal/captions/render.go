@@ -33,6 +33,7 @@ func renderTextPNG(cfg Config, overlay Overlay, outputPath string) error {
 		drawTextBackground(ctx, lines, float64(cfg.Width)/2, y, lineHeight, cfg, overlay)
 	}
 	drawTextBlock(ctx, lines, float64(cfg.Width)/2, y, lineHeight, fontSize)
+
 	if err := imageio.WriteToFile(ctx.Image(), outputPath, imageio.PNG); err != nil {
 		return fmt.Errorf("save overlay PNG: %w", err)
 	}

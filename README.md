@@ -7,7 +7,7 @@ It does not try to replace a video editor. It covers the small operations that a
 ## Prerequisites
 
 - `ffmpeg` in your `PATH`
-- `ffprobe` in your `PATH` when using `join` with fades
+- `ffprobe` in your `PATH` when using `preview` or `join` with fades
 - Optional: `whisper.cpp` CLI when using `transcribe`
 
 On macOS:
@@ -24,10 +24,12 @@ brew install whisper-cpp
 captions     Render social videos with timed text overlays.
 fit          Fit a video into a social-ready frame.
 join         Join clips from a JSON plan.
+preview      Create a compact video preview under a size limit.
 reverse      Reverse a video for rewind-style effects.
 slice        Cut a video into clips from a JSON cut list.
 slow         Slow a video down for slow-motion effects.
 soundtrack   Add or mix an external audio track into a video.
+script       Generate timed overlay JSON from a text script.
 transcribe   Generate timed overlay JSON from speech.
 ```
 
@@ -44,9 +46,11 @@ cliphub join -h
 ```sh
 cliphub slice -in ride.mp4
 cliphub fit -in ride_clip_2.mp4 -cover
+cliphub preview -in ride.mp4 -max-size 30MB
 cliphub slow -in ride_clip_2_fit.mp4
 cliphub reverse -in ride_clip_3.mp4
 cliphub transcribe -in ride_clip_2_fit_slow.mp4 -model models/ggml-small.bin -lang it
+cliphub script -in narration.txt -duration 30
 cliphub captions -in ride_clip_2_fit_slow.mp4
 cliphub join -in ride_join.json
 cliphub soundtrack -in ride_joined.mp4 -audio music.mp3
