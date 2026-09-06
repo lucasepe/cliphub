@@ -73,7 +73,10 @@ func (task *transcribeTask) SetFlags(fs *flag.FlagSet) {
 	task.cfg.Language = "it"
 	task.cfg.Gravity = "bottom"
 	task.cfg.FontSize = defaultFontSize
-	task.cfg.Padding = defaultPadding
+	task.cfg.PaddingTop = defaultPadding
+	task.cfg.PaddingBottom = defaultPadding
+	task.cfg.PaddingLeft = defaultPadding
+	task.cfg.PaddingRight = defaultPadding
 	task.cfg.MaxChars = defaultMaxChars
 	task.cfg.Box = true
 	task.cfg.BoxAlpha = defaultBoxAlpha
@@ -86,7 +89,10 @@ func (task *transcribeTask) SetFlags(fs *flag.FlagSet) {
 	fs.StringVar(&task.cfg.Language, "lang", task.cfg.Language, "spoken language code")
 	fs.StringVar(&task.cfg.Gravity, "gravity", task.cfg.Gravity, "overlay gravity: top, center, or bottom")
 	fs.Float64Var(&task.cfg.FontSize, "font-size", task.cfg.FontSize, "overlay font size")
-	fs.Float64Var(&task.cfg.Padding, "padding", task.cfg.Padding, "overlay edge padding")
+	fs.Float64Var(&task.cfg.PaddingTop, "padding-top", task.cfg.PaddingTop, "overlay top padding")
+	fs.Float64Var(&task.cfg.PaddingBottom, "padding-bottom", task.cfg.PaddingBottom, "overlay bottom padding")
+	fs.Float64Var(&task.cfg.PaddingLeft, "padding-left", task.cfg.PaddingLeft, "overlay left padding")
+	fs.Float64Var(&task.cfg.PaddingRight, "padding-right", task.cfg.PaddingRight, "overlay right padding")
 	fs.IntVar(&task.cfg.MaxChars, "max-chars", task.cfg.MaxChars, "maximum characters per overlay line")
 	fs.BoolVar(&task.cfg.Box, "box", task.cfg.Box, "draw a semi-transparent box behind generated captions")
 	fs.Float64Var(&task.cfg.BoxAlpha, "box-alpha", task.cfg.BoxAlpha, "caption box opacity from 0 to 1")

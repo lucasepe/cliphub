@@ -1,10 +1,13 @@
 package captions
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 )
 
 // processVideo creates a temporary text overlay image and invokes ffmpeg to produce the final video.
@@ -62,10 +65,27 @@ func readOverlayFile(path string) ([]Overlay, bool, error) {
 	}
 
 	var overlays []Overlay
-	if err := json.Unmarshal(data, &overlays); err != nil {
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&overlays); err != nil {
+		if field := unknownJSONField(err); field != "" {
+			return nil, false, fmt.Errorf("parse overlays file %q: unknown property %q", path, field)
+		}
 		return nil, false, fmt.Errorf("parse overlays file %q: %w", path, err)
 	}
+	if err := decoder.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
+		return nil, false, fmt.Errorf("parse overlays file %q: unexpected content after overlay list", path)
+	}
 	return overlays, true, nil
+}
+
+func unknownJSONField(err error) string {
+	const prefix = "json: unknown field \""
+	message := err.Error()
+	if !strings.HasPrefix(message, prefix) || !strings.HasSuffix(message, "\"") {
+		return ""
+	}
+	return strings.TrimSuffix(strings.TrimPrefix(message, prefix), "\"")
 }
 
 // applyOverlayDefaults fills omitted overlay fields from built-in defaults and validates each overlay.
@@ -94,10 +114,7 @@ func applyOverlayDefaults(overlays []Overlay) ([]Overlay, error) {
 			fontSize := float64(defaultFontSize)
 			overlays[i].FontSize = &fontSize
 		}
-		if overlays[i].Padding == nil {
-			padding := float64(defaultPadding)
-			overlays[i].Padding = &padding
-		}
+		applyPaddingDefaults(&overlays[i])
 		if overlays[i].MaxChars == nil {
 			maxChars := defaultMaxChars
 			overlays[i].MaxChars = &maxChars
@@ -107,6 +124,26 @@ func applyOverlayDefaults(overlays []Overlay) ([]Overlay, error) {
 		}
 	}
 	return overlays, nil
+}
+
+func applyPaddingDefaults(overlay *Overlay) {
+	top, bottom := float64(defaultPadding), float64(defaultPadding)
+	left, right := float64(defaultPadding), float64(defaultPadding)
+	if overlay.SafeArea == "instagram-reel" {
+		top, bottom = instagramTop, instagramBottom
+	}
+	if overlay.PaddingTop == nil {
+		overlay.PaddingTop = &top
+	}
+	if overlay.PaddingBottom == nil {
+		overlay.PaddingBottom = &bottom
+	}
+	if overlay.PaddingLeft == nil {
+		overlay.PaddingLeft = &left
+	}
+	if overlay.PaddingRight == nil {
+		overlay.PaddingRight = &right
+	}
 }
 
 // validateOverlay checks required text, timing, gravity, and optional styling values for one overlay.
@@ -126,6 +163,9 @@ func validateOverlay(overlay Overlay, index int) error {
 	default:
 		return fmt.Errorf("%s: gravity must be one of: top, center, bottom", prefix)
 	}
+	if overlay.SafeArea != "" && overlay.SafeArea != "instagram-reel" {
+		return fmt.Errorf("%s: safe_area must be one of: instagram-reel", prefix)
+	}
 	if overlay.BoxAlpha != nil && (*overlay.BoxAlpha < 0 || *overlay.BoxAlpha > 1) {
 		return fmt.Errorf("%s: box_alpha must be between 0 and 1", prefix)
 	}
@@ -138,8 +178,13 @@ func validateOverlay(overlay Overlay, index int) error {
 	if overlay.FontSize != nil && *overlay.FontSize <= 0 {
 		return fmt.Errorf("%s: font_size must be positive", prefix)
 	}
-	if overlay.Padding != nil && *overlay.Padding < 0 {
-		return fmt.Errorf("%s: padding must be zero or greater", prefix)
+	for name, value := range map[string]*float64{
+		"padding_top": overlay.PaddingTop, "padding_bottom": overlay.PaddingBottom,
+		"padding_left": overlay.PaddingLeft, "padding_right": overlay.PaddingRight,
+	} {
+		if value != nil && *value < 0 {
+			return fmt.Errorf("%s: %s must be zero or greater", prefix, name)
+		}
 	}
 	if overlay.MaxChars != nil && *overlay.MaxChars <= 0 {
 		return fmt.Errorf("%s: max_chars must be positive", prefix)

@@ -27,7 +27,7 @@ type TextLine struct {
 // layoutLines splits text into grapheme clusters, replaces emoji clusters with PNGs, and wraps by width.
 func layoutLines(ctx *gg.Context, cfg Config, overlay Overlay) ([]TextLine, error) {
 	fontSize := *overlay.FontSize
-	maxWidth := float64(cfg.Width) - *overlay.Padding*2
+	maxWidth := float64(cfg.Width) - *overlay.PaddingLeft - *overlay.PaddingRight
 	maxChars := *overlay.MaxChars
 	var lines []TextLine
 	var current TextLine

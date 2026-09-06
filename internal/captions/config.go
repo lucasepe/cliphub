@@ -5,6 +5,8 @@ const (
 	defaultHeight    = 1920
 	defaultFontSize  = 64
 	defaultPadding   = 96
+	instagramTop     = 250
+	instagramBottom  = 450
 	defaultMaxChars  = 24
 	emojiGapRatio    = 0.18
 	defaultBoxAlpha  = 0.45
@@ -28,17 +30,21 @@ type Config struct {
 
 // Overlay describes one text item to draw over a specific time range.
 type Overlay struct {
-	Text       string   `json:"text"`
-	Gravity    string   `json:"gravity"`
-	Start      float64  `json:"start"`
-	End        float64  `json:"end"`
-	Box        *bool    `json:"box,omitempty"`
-	BoxAlpha   *float64 `json:"box_alpha,omitempty"`
-	BoxPadding *float64 `json:"box_padding,omitempty"`
-	BoxRadius  *float64 `json:"box_radius,omitempty"`
-	FontSize   *float64 `json:"font_size,omitempty"`
-	Padding    *float64 `json:"padding,omitempty"`
-	MaxChars   *int     `json:"max_chars,omitempty"`
+	Text          string   `json:"text"`
+	Gravity       string   `json:"gravity"`
+	Start         float64  `json:"start"`
+	End           float64  `json:"end"`
+	Box           *bool    `json:"box,omitempty"`
+	BoxAlpha      *float64 `json:"box_alpha,omitempty"`
+	BoxPadding    *float64 `json:"box_padding,omitempty"`
+	BoxRadius     *float64 `json:"box_radius,omitempty"`
+	FontSize      *float64 `json:"font_size,omitempty"`
+	SafeArea      string   `json:"safe_area,omitempty"`
+	PaddingTop    *float64 `json:"padding_top,omitempty"`
+	PaddingBottom *float64 `json:"padding_bottom,omitempty"`
+	PaddingLeft   *float64 `json:"padding_left,omitempty"`
+	PaddingRight  *float64 `json:"padding_right,omitempty"`
+	MaxChars      *int     `json:"max_chars,omitempty"`
 }
 
 // RenderJob joins an overlay configuration with the generated PNG path used by ffmpeg.

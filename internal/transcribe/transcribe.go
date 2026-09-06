@@ -35,8 +35,8 @@ func validateTranscribeConfig(cfg TranscribeConfig) error {
 	if cfg.FontSize <= 0 {
 		return errors.New("-font-size must be positive")
 	}
-	if cfg.Padding < 0 {
-		return errors.New("-padding must be zero or greater")
+	if cfg.PaddingTop < 0 || cfg.PaddingBottom < 0 || cfg.PaddingLeft < 0 || cfg.PaddingRight < 0 {
+		return errors.New("directional padding values must be zero or greater")
 	}
 	if cfg.MaxChars <= 0 {
 		return errors.New("-max-chars must be positive")
@@ -158,17 +158,20 @@ func whisperSegmentsToOverlays(segments []WhisperSegment, cfg TranscribeConfig) 
 // captionOverlay builds one styled overlay for the provided text and time range.
 func captionOverlay(text string, start, end float64, cfg TranscribeConfig) Overlay {
 	return Overlay{
-		Text:       text,
-		Gravity:    cfg.Gravity,
-		Start:      start,
-		End:        end,
-		Box:        &cfg.Box,
-		BoxAlpha:   &cfg.BoxAlpha,
-		BoxPadding: &cfg.BoxPadding,
-		BoxRadius:  &cfg.BoxRadius,
-		FontSize:   &cfg.FontSize,
-		Padding:    &cfg.Padding,
-		MaxChars:   &cfg.MaxChars,
+		Text:          text,
+		Gravity:       cfg.Gravity,
+		Start:         start,
+		End:           end,
+		Box:           &cfg.Box,
+		BoxAlpha:      &cfg.BoxAlpha,
+		BoxPadding:    &cfg.BoxPadding,
+		BoxRadius:     &cfg.BoxRadius,
+		FontSize:      &cfg.FontSize,
+		PaddingTop:    &cfg.PaddingTop,
+		PaddingBottom: &cfg.PaddingBottom,
+		PaddingLeft:   &cfg.PaddingLeft,
+		PaddingRight:  &cfg.PaddingRight,
+		MaxChars:      &cfg.MaxChars,
 	}
 }
 

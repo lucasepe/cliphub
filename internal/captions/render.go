@@ -28,11 +28,12 @@ func renderTextPNG(cfg Config, overlay Overlay, outputPath string) error {
 	lineHeight := fontSize * 1.25
 	blockHeight := lineHeight * float64(len(lines))
 	y := textY(overlay.Gravity, float64(cfg.Height), blockHeight, overlay)
+	centerX := *overlay.PaddingLeft + (float64(cfg.Width)-*overlay.PaddingLeft-*overlay.PaddingRight)/2
 
 	if *overlay.Box {
-		drawTextBackground(ctx, lines, float64(cfg.Width)/2, y, lineHeight, cfg, overlay)
+		drawTextBackground(ctx, lines, centerX, y, lineHeight, cfg, overlay)
 	}
-	drawTextBlock(ctx, lines, float64(cfg.Width)/2, y, lineHeight, fontSize)
+	drawTextBlock(ctx, lines, centerX, y, lineHeight, fontSize)
 
 	if err := imageio.WriteToFile(ctx.Image(), outputPath, imageio.PNG); err != nil {
 		return fmt.Errorf("save overlay PNG: %w", err)
@@ -43,7 +44,6 @@ func renderTextPNG(cfg Config, overlay Overlay, outputPath string) error {
 // textY calculates the first baseline Y coordinate for the requested gravity.
 func textY(gravity string, imageHeight, blockHeight float64, overlay Overlay) float64 {
 	fontSize := *overlay.FontSize
-	padding := *overlay.Padding
 	topInset := fontSize * 0.85
 	if *overlay.Box {
 		topInset += effectiveBoxPadding(overlay)
@@ -51,12 +51,12 @@ func textY(gravity string, imageHeight, blockHeight float64, overlay Overlay) fl
 
 	switch gravity {
 	case "top":
-		return padding + topInset
+		return *overlay.PaddingTop + topInset
 	case "center":
 		return (imageHeight - blockHeight) / 2
 	case "bottom":
-		return imageHeight - blockHeight - padding
+		return imageHeight - blockHeight - *overlay.PaddingBottom
 	default:
-		return padding
+		return *overlay.PaddingTop
 	}
 }

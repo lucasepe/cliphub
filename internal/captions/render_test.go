@@ -10,7 +10,7 @@ func TestTextYTopKeepsBoxInsideCanvas(t *testing.T) {
 	overlay := Overlay{
 		Gravity:    "top",
 		FontSize:   &fontSize,
-		Padding:    &padding,
+		PaddingTop: &padding,
 		Box:        &box,
 		BoxPadding: &boxPadding,
 	}
@@ -30,7 +30,7 @@ func TestTextYTopKeepsTextInsideCanvasWithoutBox(t *testing.T) {
 	overlay := Overlay{
 		Gravity:    "top",
 		FontSize:   &fontSize,
-		Padding:    &padding,
+		PaddingTop: &padding,
 		Box:        &box,
 		BoxPadding: &boxPadding,
 	}

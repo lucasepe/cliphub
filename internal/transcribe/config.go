@@ -12,21 +12,24 @@ const (
 type Overlay = captions.Overlay
 
 type TranscribeConfig struct {
-	Input      string
-	Output     string
-	Whisper    string
-	NoGPU      bool
-	Model      string
-	Language   string
-	Gravity    string
-	FontSize   float64
-	Padding    float64
-	MaxChars   int
-	Box        bool
-	BoxAlpha   float64
-	BoxPadding float64
-	BoxRadius  float64
-	Words      bool
+	Input         string
+	Output        string
+	Whisper       string
+	NoGPU         bool
+	Model         string
+	Language      string
+	Gravity       string
+	FontSize      float64
+	PaddingTop    float64
+	PaddingBottom float64
+	PaddingLeft   float64
+	PaddingRight  float64
+	MaxChars      int
+	Box           bool
+	BoxAlpha      float64
+	BoxPadding    float64
+	BoxRadius     float64
+	Words         bool
 }
 
 type WhisperOutput struct {

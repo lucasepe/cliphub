@@ -24,15 +24,18 @@ func TestParseWhisperTimeAcceptsDotMilliseconds(t *testing.T) {
 
 func TestWhisperSegmentsToOverlaysCanEmitOneOverlayPerWord(t *testing.T) {
 	cfg := TranscribeConfig{
-		Gravity:    "bottom",
-		FontSize:   defaultFontSize,
-		Padding:    defaultPadding,
-		MaxChars:   defaultMaxChars,
-		Box:        true,
-		BoxAlpha:   defaultBoxAlpha,
-		BoxPadding: 0,
-		BoxRadius:  0,
-		Words:      true,
+		Gravity:       "bottom",
+		FontSize:      defaultFontSize,
+		PaddingTop:    defaultPadding,
+		PaddingBottom: defaultPadding,
+		PaddingLeft:   defaultPadding,
+		PaddingRight:  defaultPadding,
+		MaxChars:      defaultMaxChars,
+		Box:           true,
+		BoxAlpha:      defaultBoxAlpha,
+		BoxPadding:    0,
+		BoxRadius:     0,
+		Words:         true,
 	}
 	segments := []WhisperSegment{
 		{
@@ -61,14 +64,17 @@ func TestWhisperSegmentsToOverlaysCanEmitOneOverlayPerWord(t *testing.T) {
 
 func TestTokenWordOverlaysUsesTokenTimestamps(t *testing.T) {
 	cfg := TranscribeConfig{
-		Gravity:    "bottom",
-		FontSize:   defaultFontSize,
-		Padding:    defaultPadding,
-		MaxChars:   defaultMaxChars,
-		Box:        true,
-		BoxAlpha:   defaultBoxAlpha,
-		BoxPadding: 0,
-		BoxRadius:  0,
+		Gravity:       "bottom",
+		FontSize:      defaultFontSize,
+		PaddingTop:    defaultPadding,
+		PaddingBottom: defaultPadding,
+		PaddingLeft:   defaultPadding,
+		PaddingRight:  defaultPadding,
+		MaxChars:      defaultMaxChars,
+		Box:           true,
+		BoxAlpha:      defaultBoxAlpha,
+		BoxPadding:    0,
+		BoxRadius:     0,
 	}
 	tokens := []WhisperToken{
 		{Text: "[_BEG_]", Offsets: WhisperOffsets{From: 0, To: 0}},

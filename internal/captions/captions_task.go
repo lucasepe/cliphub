@@ -86,7 +86,9 @@ OPTIONAL JSON FIELDS:
 
   gravity      top, center, or bottom
   font_size    text size in pixels
-  padding      edge padding in pixels
+  safe_area    optional preset: instagram-reel
+  padding_top, padding_bottom, padding_left, padding_right
+               directional padding in pixels; overrides safe_area
   max_chars    wrapping limit per line
   box          draw a readable background
   box_alpha    background opacity from 0 to 1
