@@ -38,6 +38,7 @@ Every command has its own detailed help:
 ```sh
 cliphub captions -h
 cliphub slice -h
+cliphub slow -h
 cliphub join -h
 ```
 
@@ -63,6 +64,7 @@ Some commands read sidecar JSON files beside the input media:
 ```text
 captions     ride.mp4      -> ride_overlays.json
 slice        ride.mp4      -> ride_slices.json
+slow         ride.mp4      -> ride_slow.json (optional selective slow-motion ranges)
 join         ride_join.json
 ```
 
@@ -71,6 +73,7 @@ Use the command help to see the expected JSON format:
 ```sh
 cliphub captions -h
 cliphub slice -h
+cliphub slow -h
 cliphub join -h
 ```
 

@@ -24,35 +24,56 @@ type TextLine struct {
 	Chars int
 }
 
-// layoutLines splits text into grapheme clusters, replaces emoji clusters with PNGs, and wraps by width.
+type textToken struct {
+	Parts []TextPart
+	Space bool
+}
+
+// layoutLines keeps words intact while wrapping by rendered width and character count.
 func layoutLines(ctx *gg.Context, cfg Config, overlay Overlay) ([]TextLine, error) {
 	fontSize := *overlay.FontSize
 	maxWidth := float64(cfg.Width) - *overlay.PaddingLeft - *overlay.PaddingRight
 	maxChars := *overlay.MaxChars
+	tokens, err := textTokens(ctx, cfg, overlay.Text, fontSize)
+	if err != nil {
+		return nil, err
+	}
 	var lines []TextLine
 	var current TextLine
+	var spaces []TextPart
 
-	graphemes := uniseg.NewGraphemes(overlay.Text)
-	for graphemes.Next() {
-		cluster := graphemes.Str()
-		part, err := textPart(ctx, cluster, cfg, fontSize)
-		if err != nil {
-			return nil, err
+	for _, token := range tokens {
+		if token.Space {
+			if len(current.Parts) > 0 {
+				spaces = append(spaces, token.Parts...)
+			}
+			continue
 		}
-		if hasTrailingEmoji(current) && part.Emoji != nil {
-			current.Width += emojiGap(fontSize)
-		}
-		tooWide := current.Width+part.Width > maxWidth
-		tooManyChars := current.Chars+part.Chars > maxChars
-		if (tooWide || tooManyChars) &&
-			len(current.Parts) > 0 &&
-			!isSpace(cluster) {
+
+		candidate := appendParts(current, spaces, fontSize)
+		candidate = appendParts(candidate, token.Parts, fontSize)
+		if len(current.Parts) > 0 && !lineFits(candidate, maxWidth, maxChars) {
 			lines = append(lines, trimLine(current, fontSize))
 			current = TextLine{}
+			spaces = nil
 		}
-		current.Parts = append(current.Parts, part)
-		current.Width += part.Width
-		current.Chars += part.Chars
+
+		word := appendParts(TextLine{}, token.Parts, fontSize)
+		if len(current.Parts) == 0 && !lineFits(word, maxWidth, maxChars) {
+			for _, part := range token.Parts {
+				withPart := appendParts(current, []TextPart{part}, fontSize)
+				if len(current.Parts) > 0 && !lineFits(withPart, maxWidth, maxChars) {
+					lines = append(lines, trimLine(current, fontSize))
+					current = TextLine{}
+				}
+				current = appendParts(current, []TextPart{part}, fontSize)
+			}
+			continue
+		}
+
+		current = appendParts(current, spaces, fontSize)
+		current = appendParts(current, token.Parts, fontSize)
+		spaces = nil
 	}
 	if len(current.Parts) > 0 {
 		lines = append(lines, trimLine(current, fontSize))
@@ -61,6 +82,36 @@ func layoutLines(ctx *gg.Context, cfg Config, overlay Overlay) ([]TextLine, erro
 		return []TextLine{{Parts: []TextPart{{Value: "", Chars: 0}}}}, nil
 	}
 	return lines, nil
+}
+
+// textTokens groups grapheme clusters into whitespace and non-whitespace runs.
+func textTokens(ctx *gg.Context, cfg Config, value string, fontSize float64) ([]textToken, error) {
+	var tokens []textToken
+	graphemes := uniseg.NewGraphemes(value)
+	for graphemes.Next() {
+		cluster := graphemes.Str()
+		part, err := textPart(ctx, cluster, cfg, fontSize)
+		if err != nil {
+			return nil, err
+		}
+		space := isSpace(cluster)
+		if len(tokens) == 0 || tokens[len(tokens)-1].Space != space {
+			tokens = append(tokens, textToken{Space: space})
+		}
+		tokens[len(tokens)-1].Parts = append(tokens[len(tokens)-1].Parts, part)
+	}
+	return tokens, nil
+}
+
+func appendParts(line TextLine, parts []TextPart, fontSize float64) TextLine {
+	line.Parts = append(line.Parts, parts...)
+	line.Width = lineWidth(line.Parts, fontSize)
+	line.Chars = lineChars(line.Parts)
+	return line
+}
+
+func lineFits(line TextLine, maxWidth float64, maxChars int) bool {
+	return line.Width <= maxWidth && line.Chars <= maxChars
 }
 
 // textPart returns a drawable part for a grapheme cluster, using Twemoji PNGs for emoji clusters.
@@ -78,14 +129,6 @@ func textPart(ctx *gg.Context, cluster string, cfg Config, fontSize float64) (Te
 	}
 	width, _ := ctx.MeasureString(cluster)
 	return TextPart{Value: cluster, Width: width, Chars: len([]rune(cluster))}, nil
-}
-
-// hasTrailingEmoji reports whether the current line ends with an emoji image part.
-func hasTrailingEmoji(line TextLine) bool {
-	if len(line.Parts) == 0 {
-		return false
-	}
-	return line.Parts[len(line.Parts)-1].Emoji != nil
 }
 
 // emojiGap returns extra spacing between adjacent emoji, scaled from the configured font size.

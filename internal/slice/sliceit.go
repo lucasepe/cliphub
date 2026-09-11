@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/lucasepe/cliphub/internal/shared"
@@ -114,39 +113,11 @@ func videoBaseName(inputPath string) string {
 
 // validateSliceItem checks timestamps and rejects empty or inverted clip ranges.
 func validateSliceItem(index int, item SliceItem) error {
-	fromSeconds, err := parseClockTime(item.From)
+	_, _, err := shared.ValidateTimeRange(shared.TimeRange{From: item.From, To: item.To})
 	if err != nil {
-		return fmt.Errorf("clip %d from: %w", index+1, err)
-	}
-	toSeconds, err := parseClockTime(item.To)
-	if err != nil {
-		return fmt.Errorf("clip %d to: %w", index+1, err)
-	}
-	if toSeconds <= fromSeconds {
-		return fmt.Errorf("clip %d to must be greater than from", index+1)
+		return fmt.Errorf("clip %d: %w", index+1, err)
 	}
 	return nil
-}
-
-// parseClockTime converts hh:mm:ss or hh:mm:ss.xxx into seconds for validation.
-func parseClockTime(value string) (float64, error) {
-	parts := strings.Split(strings.TrimSpace(value), ":")
-	if len(parts) != 3 {
-		return 0, fmt.Errorf("invalid time %q, expected hh:mm:ss", value)
-	}
-	hours, err := strconv.Atoi(parts[0])
-	if err != nil || hours < 0 {
-		return 0, fmt.Errorf("invalid hours %q", parts[0])
-	}
-	minutes, err := strconv.Atoi(parts[1])
-	if err != nil || minutes < 0 || minutes > 59 {
-		return 0, fmt.Errorf("invalid minutes %q", parts[1])
-	}
-	seconds, err := strconv.ParseFloat(parts[2], 64)
-	if err != nil || seconds < 0 || seconds >= 60 {
-		return 0, fmt.Errorf("invalid seconds %q", parts[2])
-	}
-	return float64(hours*3600+minutes*60) + seconds, nil
 }
 
 // cleanClipName turns a user-provided clip name into a single safe filename stem.
