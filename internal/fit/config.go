@@ -7,10 +7,11 @@ const (
 
 // Config contains command-line options for fitting a video into a target frame.
 type Config struct {
-	Input  string
-	Output string
-	Width  int
-	Height int
-	Cover  bool
-	DryRun bool
+	Input      string
+	Output     string
+	Width      int
+	Height     int
+	Cover      bool
+	WidthFirst bool
+	DryRun     bool
 }

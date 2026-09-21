@@ -32,6 +32,28 @@ func TestVideoFilterCover(t *testing.T) {
 	}
 }
 
+func TestVideoFilterCoverWidthFirst(t *testing.T) {
+	cfg := Config{Width: 1080, Height: 1920, Cover: true, WidthFirst: true}
+	got := videoFilter(cfg)
+	want := "[0:v:0]split=2[bg][fg];[bg]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920:(iw-ow)/2:(ih-oh)/2,boxblur=20:1[bg];[fg]scale=1080:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1"
+	if got != want {
+		t.Fatalf("videoFilter() = %q, want %q", got, want)
+	}
+}
+
+func TestValidateConfigRejectsWidthFirstWithoutCover(t *testing.T) {
+	cfg := Config{
+		Input:      "input.mp4",
+		Output:     "output.mp4",
+		Width:      1080,
+		Height:     1920,
+		WidthFirst: true,
+	}
+	if err := validateConfig(cfg); err == nil {
+		t.Fatal("validateConfig() error = nil, want error")
+	}
+}
+
 func TestFFmpegArgs(t *testing.T) {
 	cfg := Config{
 		Input:  "input.mp4",

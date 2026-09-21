@@ -50,11 +50,15 @@ MODES:
 
   contain    scale the whole video into the frame and add padding when needed
   cover      fill the frame and center-crop the overflow
+  width-first cover
+             fill the frame with a blurred cover background, then place the
+             video scaled to the output width on top to preserve more content
 
 EXAMPLES:
 
   cliphub fit -in ride.mp4
   cliphub fit -in ride.mp4 -cover
+  cliphub fit -in ride.mp4 -cover -width-first
   cliphub fit -in ride.mp4 -width 1080 -height 1080
   cliphub fit -in ride.mp4 -out reel.mp4 -dry-run
   
@@ -72,6 +76,8 @@ func (task *task) SetFlags(fs *flag.FlagSet) {
 	fs.IntVar(&task.cfg.Height, "height", defaultHeight, "output video height")
 	fs.BoolVar(&task.cfg.Cover, "cover", false,
 		"scale and center-crop the video to fill the output frame")
+	fs.BoolVar(&task.cfg.WidthFirst, "width-first", false,
+		"with -cover, preserve the full video width over a blurred cover background")
 	fs.BoolVar(&task.cfg.DryRun, "dry-run", false,
 		"print ffmpeg command without writing the output")
 }

@@ -2,7 +2,7 @@
 
 `cliphub` is a small command-line toolbox for repeatable social-video workflows.
 
-It does not try to replace a video editor. It covers the small operations that are easy to automate: cut clips, fit videos into social frames, add captions, transcribe speech, reverse or slow short moments, join clips, and add a soundtrack.
+It does not try to replace a video editor. It covers the small operations that are easy to automate: cut clips, fit videos into social frames, add captions, transcribe speech, reverse or slow short moments, join clips, blur tracked details, and add a soundtrack.
 
 ## Prerequisites
 
@@ -29,6 +29,7 @@ reverse      Reverse a video for rewind-style effects.
 slice        Cut a video into clips from a JSON cut list.
 slow         Slow a video down for slow-motion effects.
 soundtrack   Add or mix an external audio track into a video.
+trackblur    Blur a moving point by tracking it through the video.
 script       Generate timed overlay JSON from a text script.
 transcribe   Generate timed overlay JSON from speech.
 ```
@@ -50,6 +51,7 @@ cliphub fit -in ride_clip_2.mp4 -cover
 cliphub preview -in ride.mp4 -max-size 30MB
 cliphub slow -in ride_clip_2_fit.mp4
 cliphub reverse -in ride_clip_3.mp4
+cliphub trackblur -in ride_clip_2.mp4 -at 00:00:01 -x 640 -y 920 -radius 48
 cliphub transcribe -in ride_clip_2_fit_slow.mp4 -model models/ggml-small.bin -lang it
 cliphub script -in narration.txt -duration 30
 cliphub captions -in ride_clip_2_fit_slow.mp4

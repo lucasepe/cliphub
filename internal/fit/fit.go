@@ -28,6 +28,10 @@ func validateConfig(cfg Config) error {
 		return errors.New("-width and -height must be positive")
 	}
 
+	if cfg.WidthFirst && !cfg.Cover {
+		return errors.New("-width-first requires -cover")
+	}
+
 	return nil
 }
 
@@ -67,6 +71,16 @@ func ffmpegArgs(cfg Config) []string {
 
 // videoFilter returns a contain or cover scaling filter for the requested frame.
 func videoFilter(cfg Config) string {
+	if cfg.Cover && cfg.WidthFirst {
+		return fmt.Sprintf(
+			"[0:v:0]split=2[bg][fg];[bg]scale=%d:%d:force_original_aspect_ratio=increase,crop=%d:%d:(iw-ow)/2:(ih-oh)/2,boxblur=20:1[bg];[fg]scale=%d:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1",
+			cfg.Width,
+			cfg.Height,
+			cfg.Width,
+			cfg.Height,
+			cfg.Width,
+		)
+	}
 	if cfg.Cover {
 		return fmt.Sprintf(
 			"scale=%d:%d:force_original_aspect_ratio=increase,crop=%d:%d:(iw-ow)/2:(ih-oh)/2",
