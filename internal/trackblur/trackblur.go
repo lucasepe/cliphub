@@ -119,8 +119,17 @@ func validateConfig(cfg Config) error {
 	if cfg.Blurs == "" && (cfg.X < 0 || cfg.Y < 0) {
 		return errors.New("missing required -x and -y source-video coordinates")
 	}
-	if cfg.Radius <= 0 {
-		return errors.New("-radius must be positive")
+	switch cfg.Shape {
+	case "circle":
+		if cfg.Radius <= 0 {
+			return errors.New("-radius must be positive")
+		}
+	case "rectangle":
+		if cfg.Width <= 0 || cfg.Height <= 0 {
+			return errors.New("-width and -height must be positive for rectangle shape")
+		}
+	default:
+		return errors.New("-shape must be circle or rectangle")
 	}
 	if cfg.Blur <= 0 {
 		return errors.New("-blur must be positive")
@@ -134,10 +143,6 @@ func validateConfig(cfg Config) error {
 	if cfg.Adapt < 0 || cfg.Adapt > 1 {
 		return errors.New("-adapt must be between 0 and 1")
 	}
-	if cfg.Shape != "circle" {
-		return errors.New("-shape currently supports only circle")
-	}
-
 	inAbs, _ := filepath.Abs(cfg.Input)
 	outAbs, _ := filepath.Abs(cfg.Output)
 	if inAbs == outAbs {
@@ -156,6 +161,8 @@ func blurItems(cfg Config) ([]BlurItem, error) {
 		X:            cfg.X,
 		Y:            cfg.Y,
 		Radius:       cfg.Radius,
+		Width:        cfg.Width,
+		Height:       cfg.Height,
 		Blur:         cfg.Blur,
 		SearchRadius: cfg.SearchRadius,
 		TemplateSize: cfg.TemplateSize,
@@ -240,6 +247,12 @@ func withDefaults(item BlurItem) BlurItem {
 	if item.Radius == 0 {
 		item.Radius = defaultRadius
 	}
+	if item.Width == 0 {
+		item.Width = defaultWidth
+	}
+	if item.Height == 0 {
+		item.Height = defaultHeight
+	}
 	if item.Blur == 0 {
 		item.Blur = defaultBlur
 	}
@@ -263,8 +276,17 @@ func validateBlurItem(index int, item BlurItem) error {
 	if item.X < 0 || item.Y < 0 {
 		return fmt.Errorf("%s missing required x and y source-video coordinates", prefix)
 	}
-	if item.Radius <= 0 {
-		return fmt.Errorf("%s radius must be positive", prefix)
+	switch item.Shape {
+	case "circle":
+		if item.Radius <= 0 {
+			return fmt.Errorf("%s radius must be positive", prefix)
+		}
+	case "rectangle":
+		if item.Width <= 0 || item.Height <= 0 {
+			return fmt.Errorf("%s width and height must be positive for rectangle shape", prefix)
+		}
+	default:
+		return fmt.Errorf("%s shape must be circle or rectangle", prefix)
 	}
 	if item.Blur <= 0 {
 		return fmt.Errorf("%s blur must be positive", prefix)
@@ -277,9 +299,6 @@ func validateBlurItem(index int, item BlurItem) error {
 	}
 	if item.Adapt < 0 || item.Adapt > 1 {
 		return fmt.Errorf("%s adapt must be between 0 and 1", prefix)
-	}
-	if item.Shape != "circle" {
-		return fmt.Errorf("%s shape currently supports only circle", prefix)
 	}
 	return nil
 }
@@ -430,7 +449,7 @@ func processFrames(paths []string, trackers []tracker, cfg Config) error {
 					fmt.Printf("blur=%d frame=%d x=%d y=%d correlation=%.3f\n", n+1, i+1, tracker.center.x, tracker.center.y, correlation)
 				}
 			}
-			applyCircularBlur(output, tracker.center, tracker.item.Radius, tracker.item.Blur)
+			applyBlur(output, tracker.center, tracker.item)
 			changed = true
 		}
 
@@ -622,6 +641,35 @@ func applyCircularBlur(img *image.NRGBA, center point, radius int, blurRadius in
 			}
 			img.SetNRGBA(x, y, sums.average(x, y, blurRadius))
 		}
+	}
+}
+
+func applyRectangularBlur(img *image.NRGBA, center point, width, height, blurRadius int) {
+	bounds := img.Bounds()
+	left := center.x - width/2
+	top := center.y - height/2
+	region := image.Rect(left, top, left+width, top+height).Intersect(bounds)
+	if region.Empty() {
+		return
+	}
+
+	original := image.NewNRGBA(bounds)
+	draw.Draw(original, bounds, img, bounds.Min, draw.Src)
+	sums := newIntegralImage(original)
+
+	for y := region.Min.Y; y < region.Max.Y; y++ {
+		for x := region.Min.X; x < region.Max.X; x++ {
+			img.SetNRGBA(x, y, sums.average(x, y, blurRadius))
+		}
+	}
+}
+
+func applyBlur(img *image.NRGBA, center point, item BlurItem) {
+	switch item.Shape {
+	case "rectangle":
+		applyRectangularBlur(img, center, item.Width, item.Height, item.Blur)
+	default:
+		applyCircularBlur(img, center, item.Radius, item.Blur)
 	}
 }
 

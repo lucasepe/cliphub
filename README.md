@@ -28,6 +28,7 @@ preview      Create a compact video preview under a size limit.
 reverse      Reverse a video for rewind-style effects.
 slice        Cut a video into clips from a JSON cut list.
 slow         Slow a video down for slow-motion effects.
+soundfx      Mix timed sound effects into a video's original audio.
 soundtrack   Add or mix an external audio track into a video.
 trackblur    Blur a moving point by tracking it through the video.
 script       Generate timed overlay JSON from a text script.
@@ -52,10 +53,12 @@ cliphub preview -in ride.mp4 -max-size 30MB
 cliphub slow -in ride_clip_2_fit.mp4
 cliphub reverse -in ride_clip_3.mp4
 cliphub trackblur -in ride_clip_2.mp4 -at 00:00:01 -x 640 -y 920 -radius 48
+cliphub trackblur -in ride_clip_2.mp4 -at 00:00:01 -x 640 -y 920 -shape rectangle -width 140 -height 48
 cliphub transcribe -in ride_clip_2_fit_slow.mp4 -model models/ggml-small.bin -lang it
 cliphub script -in narration.txt -duration 30
 cliphub captions -in ride_clip_2_fit_slow.mp4
 cliphub join -in ride_join.json
+cliphub soundfx -in ride.mp4 -audio reaction.mp3 -at 00:00:08
 cliphub soundtrack -in ride_joined.mp4 -audio music.mp3
 ```
 
@@ -68,6 +71,7 @@ captions     ride.mp4      -> ride_overlays.json
 slice        ride.mp4      -> ride_slices.json
 slow         ride.mp4      -> ride_slow.json (optional selective slow-motion ranges)
 join         ride_join.json
+soundfx      ride.mp4      -> ride_soundfx.json (optional timed effects)
 ```
 
 Use the command help to see the expected JSON format:

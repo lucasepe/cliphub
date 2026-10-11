@@ -37,10 +37,15 @@ func (task *task) Usage() string {
 		AppName:  task.appName,
 		Command:  task.Name(),
 		Body: `
-Tracks a small image patch around a point and applies a circular blur that follows it.
+Tracks a small image patch around a point and applies a blur mask that follows it.
 
 The coordinates are in source-video pixels. Pick a distinctive point at -at, usually
 near the center of the object you want to hide.
+
+SHAPES:
+
+  circle      Uses radius.
+  rectangle   Uses width and height, centered on x and y.
 
 DEFAULT OUTPUT:
 
@@ -52,7 +57,8 @@ If INPUT_BASENAME_blur.json exists, trackblur reads all blur regions from it:
 
   [
     {"at": "00:00:01", "x": 888, "y": 470, "radius": 58},
-    {"at": "00:00:04.500", "to": "00:00:08", "x": 1320, "y": 620, "radius": 42}
+    {"at": "00:00:04.500", "to": "00:00:08", "x": 1320, "y": 620,
+     "shape": "rectangle", "width": 140, "height": 48}
   ]
 
 Use -blurs to select another JSON file. If no JSON is found, -x and -y define
@@ -61,6 +67,7 @@ a single blur that starts at -at and continues to the end of the video.
 EXAMPLES:
 
   cliphub trackblur -in ride.mp4 -at 00:00:01 -x 640 -y 920 -radius 48
+  cliphub trackblur -in ride.mp4 -at 1.0 -x 640 -y 920 -shape rectangle -width 140 -height 48
   cliphub trackblur -in ride.mp4 -blurs ride_blur.json
   cliphub trackblur -in ride.mp4 -at 1.0 -x 640 -y 920 -radius 48 -blur 18 -search 120 -adapt 0.18
   cliphub trackblur -in ride.mp4 -at 1.0 -x 640 -y 920 -out ride_hidden.mp4
@@ -80,11 +87,13 @@ func (task *task) SetFlags(fs *flag.FlagSet) {
 	fs.IntVar(&task.cfg.X, "x", -1, "initial x coordinate in source-video pixels")
 	fs.IntVar(&task.cfg.Y, "y", -1, "initial y coordinate in source-video pixels")
 	fs.IntVar(&task.cfg.Radius, "radius", defaultRadius, "blur circle radius in pixels")
+	fs.IntVar(&task.cfg.Width, "width", defaultWidth, "rectangle blur width in pixels")
+	fs.IntVar(&task.cfg.Height, "height", defaultHeight, "rectangle blur height in pixels")
 	fs.IntVar(&task.cfg.Blur, "blur", defaultBlur, "box blur radius in pixels")
 	fs.IntVar(&task.cfg.SearchRadius, "search", defaultSearchRadius, "maximum per-frame tracking movement in pixels")
 	fs.IntVar(&task.cfg.TemplateSize, "template", defaultTemplateSize, "square tracking patch size in pixels")
 	fs.Float64Var(&task.cfg.Adapt, "adapt", defaultAdapt, "template adaptation rate from 0 to 1")
-	fs.StringVar(&task.cfg.Shape, "shape", "circle", "blur mask shape; currently only circle")
+	fs.StringVar(&task.cfg.Shape, "shape", "circle", "blur mask shape: circle or rectangle")
 	fs.BoolVar(&task.cfg.Debug, "debug", false, "print tracked coordinates while processing")
 	fs.BoolVar(&task.cfg.KeepWorkdir, "keep-workdir", false, "keep the temporary frame workspace for inspection")
 	fs.BoolVar(&task.cfg.DryRun, "dry-run", false, "print ffmpeg commands without processing frames")

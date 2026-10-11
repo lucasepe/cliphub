@@ -16,6 +16,7 @@ import (
 	"github.com/lucasepe/cliphub/internal/script"
 	"github.com/lucasepe/cliphub/internal/slice"
 	"github.com/lucasepe/cliphub/internal/slow"
+	"github.com/lucasepe/cliphub/internal/soundfx"
 	"github.com/lucasepe/cliphub/internal/soundtrack"
 	"github.com/lucasepe/cliphub/internal/trackblur"
 	"github.com/lucasepe/cliphub/internal/transcribe"
@@ -56,6 +57,7 @@ func main() {
 	tool.Register(reverse.ReverseTask(appName), "")
 	tool.Register(slow.SlowTask(appName), "")
 	tool.Register(join.Task(appName), "")
+	tool.Register(soundfx.Task(appName), "")
 	tool.Register(soundtrack.Task(appName), "")
 	tool.Register(trackblur.Task(appName), "")
 

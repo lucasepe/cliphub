@@ -2,6 +2,8 @@ package trackblur
 
 const (
 	defaultRadius       = 42
+	defaultWidth        = 84
+	defaultHeight       = 48
 	defaultBlur         = 12
 	defaultSearchRadius = 90
 	defaultTemplateSize = 96
@@ -17,6 +19,8 @@ type Config struct {
 	X            int
 	Y            int
 	Radius       int
+	Width        int
+	Height       int
 	Blur         int
 	SearchRadius int
 	TemplateSize int
@@ -35,6 +39,8 @@ type BlurItem struct {
 	X            int     `json:"x"`
 	Y            int     `json:"y"`
 	Radius       int     `json:"radius,omitempty"`
+	Width        int     `json:"width,omitempty"`
+	Height       int     `json:"height,omitempty"`
 	Blur         int     `json:"blur,omitempty"`
 	SearchRadius int     `json:"search,omitempty"`
 	TemplateSize int     `json:"template,omitempty"`

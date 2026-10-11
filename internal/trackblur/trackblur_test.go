@@ -1,6 +1,8 @@
 package trackblur
 
 import (
+	"image"
+	"image/color"
 	"os"
 	"path/filepath"
 	"testing"
@@ -104,5 +106,48 @@ func TestBuildTrackers(t *testing.T) {
 	}
 	if trackers[0].item.Radius != defaultRadius {
 		t.Fatalf("default radius = %d, want %d", trackers[0].item.Radius, defaultRadius)
+	}
+}
+
+func TestBuildRectangleTracker(t *testing.T) {
+	items := []BlurItem{
+		{At: "1", X: 10, Y: 20, Shape: "rectangle", Width: 120, Height: 40},
+	}
+
+	trackers, err := buildTrackers(items, mediaInfo{FPS: 30, FPSLabel: "30"})
+	if err != nil {
+		t.Fatalf("buildTrackers() error = %v", err)
+	}
+	item := trackers[0].item
+	if item.Shape != "rectangle" || item.Width != 120 || item.Height != 40 {
+		t.Fatalf("rectangle = shape %q, %dx%d; want rectangle, 120x40", item.Shape, item.Width, item.Height)
+	}
+}
+
+func TestValidateBlurItemRejectsInvalidRectangleDimensions(t *testing.T) {
+	item := withDefaults(BlurItem{X: 10, Y: 20, Shape: "rectangle", Width: -1, Height: 40})
+	if err := validateBlurItem(0, item); err == nil {
+		t.Fatal("validateBlurItem() error = nil, want invalid rectangle dimensions")
+	}
+}
+
+func TestApplyRectangularBlurOnlyChangesRectangle(t *testing.T) {
+	img := image.NewNRGBA(image.Rect(0, 0, 9, 9))
+	for y := 0; y < 9; y++ {
+		for x := 0; x < 9; x++ {
+			img.SetNRGBA(x, y, color.NRGBA{A: 255})
+		}
+	}
+	img.SetNRGBA(4, 4, color.NRGBA{R: 255, G: 255, B: 255, A: 255})
+	beforeOutside := img.NRGBAAt(1, 1)
+	beforeInside := img.NRGBAAt(4, 4)
+
+	applyRectangularBlur(img, point{x: 4, y: 4}, 4, 2, 2)
+
+	if got := img.NRGBAAt(1, 1); got != beforeOutside {
+		t.Fatalf("pixel outside rectangle changed: got %#v, want %#v", got, beforeOutside)
+	}
+	if got := img.NRGBAAt(4, 4); got == beforeInside {
+		t.Fatalf("pixel inside rectangle did not change: got %#v", got)
 	}
 }
