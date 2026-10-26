@@ -10,6 +10,7 @@ import (
 
 	"github.com/lucasepe/cliphub/internal/captions"
 	"github.com/lucasepe/cliphub/internal/fit"
+	"github.com/lucasepe/cliphub/internal/fx"
 	"github.com/lucasepe/cliphub/internal/join"
 	"github.com/lucasepe/cliphub/internal/preview"
 	"github.com/lucasepe/cliphub/internal/reverse"
@@ -52,6 +53,7 @@ func main() {
 	tool.Register(transcribe.TranscribeTask(appName), "")
 	tool.Register(script.Task(appName), "")
 	tool.Register(fit.Task(appName), "")
+	tool.Register(fx.Task(appName), "")
 	tool.Register(preview.Task(appName), "")
 	tool.Register(slice.SliceTask(appName), "")
 	tool.Register(reverse.ReverseTask(appName), "")

@@ -7,6 +7,7 @@ It does not try to replace a video editor. It covers the small operations that a
 ## Prerequisites
 
 - `ffmpeg` in your `PATH`
+- `ffmpeg` with `libx264` and common video filters when using `fx`
 - `ffprobe` in your `PATH` when using `preview` or `join` with fades
 - Optional: `whisper.cpp` CLI when using `transcribe`
 
@@ -23,6 +24,7 @@ brew install whisper-cpp
 ```text
 captions     Render social videos with timed text overlays.
 fit          Fit a video into a social-ready frame.
+fx           Apply stylized color, ink, or grayscale effects to a video.
 join         Join clips from a JSON plan.
 preview      Create a compact video preview under a size limit.
 reverse      Reverse a video for rewind-style effects.
@@ -42,13 +44,72 @@ cliphub captions -h
 cliphub slice -h
 cliphub slow -h
 cliphub join -h
+cliphub fx -h
 ```
+
+## Video Effects (`fx`)
+
+`fx` creates a new H.264 MP4 beside the input video and copies its audio when present. The original file is untouched. Choose an effect with `-effect`; `gta` is the default.
+
+| Effect | Appearance | Default output for `ride.mp4` |
+| --- | --- | --- |
+| `gta` | Saturated, posterized colors and dark outlines | `ride_gta.mp4` |
+| `cartoon` | Black ink contours on white | `ride_cartoon.mp4` |
+| `cartoon-color` | Color mix with dark contours; often a darker result | `ride_cartoon-color.mp4` |
+| `gray-steps` | Five grayscale tones: 0, 50, 100, 150, 200 | `ride_gray-steps.mp4` |
+| `cel-shade` | Smooth, flat colors with ink outlines | `ride_cel-shade.mp4` |
+| `pixel-art` | 320-pixel-wide picture with a 32-color palette, enlarged to the original frame size | `ride_pixel-art.mp4` |
+
+Run these commands with `cliphub` installed and `ride.mp4` in the current directory:
+
+```sh
+cliphub fx -in ride.mp4                    # gta
+cliphub fx -in ride.mp4 -effect cartoon
+cliphub fx -in ride.mp4 -effect cartoon-color
+cliphub fx -in ride.mp4 -effect gray-steps
+cliphub fx -in ride.mp4 -effect cel-shade
+cliphub fx -in ride.mp4 -effect pixel-art
+```
+
+For `pixel-art`, `-pixel-width` controls the working image width before enlargement: a larger value makes smaller pixels and reveals more detail. `-palette-colors` sets the maximum number of colors per frame. The defaults are `320` and `32`; the original, chunkier look used `160` and `16`.
+
+```sh
+cliphub fx -in ride.mp4 -effect pixel-art \
+  -pixel-width 160 -palette-colors 16 -out ride_pixel-chunky.mp4
+
+cliphub fx -in ride.mp4 -effect pixel-art \
+  -pixel-width 240 -palette-colors 24 -out ride_pixel-medium.mp4
+```
+
+For `cel-shade`, the default edge thresholds are `-edge-low 0.08 -edge-high 0.15`. Raising them detects fewer contours; it does not make the lines thicker. `-color-mask` controls the number of tones **per RGB channel**:
+
+| Mask | Levels per channel | Look |
+| --- | ---: | --- |
+| `240` | 16 | More gradual colors |
+| `224` (default) | 8 | Balanced flat colors |
+| `192` | 4 | Stronger retro posterization |
+
+Save each experiment to a different file with `-out`:
+
+```sh
+cliphub fx -in ride.mp4 -effect cel-shade \
+  -edge-low 0.11 -edge-high 0.20 -out ride_cel-clean.mp4
+
+cliphub fx -in ride.mp4 -effect cel-shade \
+  -color-mask 240 -out ride_cel-smooth.mp4
+
+cliphub fx -in ride.mp4 -effect cel-shade \
+  -color-mask 192 -out ride_cel-retro.mp4
+```
+
+Use `-dry-run` to print the FFmpeg command without rendering. An existing output file is overwritten when rendering. If you are working from a clone of this repository and have not installed `cliphub`, replace `cliphub` in these examples with `go run .` while in the repository root.
 
 ## Quick Workflow
 
 ```sh
 cliphub slice -in ride.mp4
 cliphub fit -in ride_clip_2.mp4 -cover
+cliphub fx -in ride_clip_2.mp4
 cliphub preview -in ride.mp4 -max-size 30MB
 cliphub slow -in ride_clip_2_fit.mp4
 cliphub reverse -in ride_clip_3.mp4
